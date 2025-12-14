@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+	<meta name="code" charset="utf-8">
+	<meta name="viewport" content="width=device-width,initial-scale=1.0,minimum-scale=0,maximum-scale=10,user-scalable=yes"/>
+	<link rel="stylesheet" type="text/css" href="STATIC/css/reset.css"/>
+	<link rel="stylesheet" type="text/css" href="STATIC/css/style.css"/>
+</head>
+<body>
+	<div class="fullpage mugshot_container">
+		<div class="inner">
+			<div class="bg">
+				<img src="STATIC/img/bg_mugshot.png">
+			</div>
+			<div class="content">
+				<a href="./index.html" data-target="false" class="fade-up btn" hidden>RESTART</a>
+				<div class="title">
+					<img src="STATIC/img/txt_failed.png" class="fade-up" data-target="false" hidden>
+					<img src="STATIC/img/txt_arrest.png" class="fade-up" data-target="true" hidden>
+				</div>
+				<div class="mugshot_box fade-up" data-target="false" hidden>
+					<img src="STATIC/img/bg_box2.png">
+					<img src="STATIC/img/questionMark1.png">
+					<img src="STATIC/img/questionMark2.png">
+				</div>
+				<div class="mugshot_img fade-up" data-target="true" hidden>
+					<img src="STATIC/img/criminal.png">
+				</div>
+			</div>
+		</div>
+	</div>
+
+	<div class="ending_area">
+		<div class="inner">
+			<div class="text" id="typing"></div>
+			<div class="btn_area">
+				<a type="button" class="fade-up btn" hidden href="./index.html">RESTART</a>
+			</div>
+		</div>
+	</div>
+	<script type="text/javascript">
+		// URL 파라미터 값을가져와 성공 실패 분기
+		// false, ture
+		const ending = document.querySelector('.ending_area');
+		const dataItem = document.querySelectorAll('[data-target]');
+		document.addEventListener('DOMContentLoaded', () => {
+			const params = new URLSearchParams(window.location.search);
+			const result = params.get('result');
+
+			dataItem.forEach(function(target){
+				if(target.dataset.target == result){
+					target.hidden = false;
+				}
+
+				// 성공일때 5초후 실행
+				if(result == 'true'){
+					setTimeout(() => {
+						ending.classList.add('show');
+						new TypingEffect(
+							document.getElementById('typing'),
+							[
+							      { text: '겉은 반짝였지만... 토마스의 안은 이미 곰팡이로 가득 피어있었다.', color: '#fff' },
+							      { text: '외형은 속일 수 있지만, 가치는 속일 수 없다.', color: '#FF0000' },
+						    ],
+							{
+								typingSpeed: 90,
+								deletingSpeed: 50,
+								delay: 2000,
+							}
+						);
+					}, 5000);
+				}
+			});
+		});
+
+		class TypingEffect {
+			constructor(el, items, options = {}) {
+				this.el = el;
+			    this.items = items;
+			    this.index = 0;
+			    this.charIndex = 0;
+			    this.isDeleting = false;
+
+			    this.typingSpeed = options.typingSpeed || 80;
+			    this.deletingSpeed = options.deletingSpeed || 50;
+			    this.delay = options.delay || 1500;
+
+				this.start();
+			}
+
+			start() {
+				this.tick();
+			}
+
+			tick() {
+				const currentItem = this.items[this.index];
+    			const currentText = currentItem.text;
+				
+
+				// 컬러 적용
+    			this.el.style.color = currentItem.color || 'inherit';
+
+				if (this.isDeleting) {
+					this.charIndex--;
+				} else {
+					this.charIndex++;
+				}
+
+				this.el.textContent = currentText.substring(0, this.charIndex);
+
+				let speed = this.isDeleting ? this.deletingSpeed : this.typingSpeed;
+
+				if (!this.isDeleting && this.charIndex === currentText.length) {
+					if (!this.loop && this.index === this.items.length - 1) {
+				    	this.el.nextElementSibling.querySelector('.btn').hidden = false;
+						return; // 그대로 멈춤
+					}
+					speed = this.delay;
+					this.isDeleting = true;
+				}
+
+				// 타이핑 완료
+				if (!this.isDeleting && this.charIndex === currentText.length) {
+					speed = this.delay;
+					this.isDeleting = true;
+				}
+
+				// 삭제 완료 → 다음 텍스트
+				if (this.isDeleting && this.charIndex === 0) {
+					this.isDeleting = false;
+				    this.index = (this.index + 1) % this.items.length;
+				    speed = 300;
+
+				}
+
+				setTimeout(() => this.tick(), speed);
+			}
+		}
+	</script>
+</body>
+</html>
